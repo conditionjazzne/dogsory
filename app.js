@@ -26,27 +26,67 @@ function configured() {
   return !SUPABASE_URL.startsWith("YOUR_") &&
          !SUPABASE_PUBLISHABLE_KEY.startsWith("YOUR_");
 }
-
 function setMessage(text = "", type = "") {
   message.textContent = text;
   message.className = type;
 }
-
 function updateCounter() {
   counter.textContent = `${input.value.length} / ${MAX_LENGTH}`;
 }
-
 function cleanText(value) {
   return value.replace(/\s+/g, " ").trim();
 }
 
 function isDisallowed(text) {
-  // 이것은 최소한의 안내용 필터입니다. 완벽한 악성 표현 차단 도구가 아닙니다.
+ const normalized = text
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[.,!?~`'"“”‘’()[\]{}<>|\\/_\-+=:;@#$%^&*]/g, "");
+  // 연락처, 이메일, 링크 차단
   const phone = /(?:01[016789]-?\d{3,4}-?\d{4})/;
   const email = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
   const url = /\bhttps?:\/\/\S+/i;
-  return phone.test(text) || email.test(text) || url.test(text);
+  if (phone.test(text) || email.test(text) || url.test(text)) {
+    return "연락처·이메일·링크는 올릴 수 없습니다.";
+  }
+  // 욕설·비하 표현 필터
+  const bannedWords = [
+    "씨발", "시발", "ㅅㅂ", "ㅆㅂ",
+    "병신", "븅신", "ㅂㅅ",
+    "개새끼", "새끼", "꺼져",
+    "좆", "존나", "ㅈㄴ",
+    "죽어", "뒤져",
+    "미친놈", "미친년",
+    "년놈", "년아", "놈아"
+  ];
+  if (bannedWords.some((word) => normalized.includes(word))) {
+    return "욕설·비하·위협적인 표현은 올릴 수 없습니다.";
+  }
+  // 같은 글자 반복 차단: ㅋㅋㅋㅋㅋㅋ, ㅏㅏㅏㅏㅏ, aaaaaa 등
+  if (/(.)\1{5,}/.test(normalized)) {
+    return "같은 문자를 과도하게 반복한 글은 올릴 수 없습니다.";
+  }
+  // 자음/모음만 긴 글 차단: ㅋㅋㅋㅋ, ㅁㄴㅇㄹ, ㅏㅏㅗㅓ 등
+  const onlyJamo = /^[ㄱ-ㅎㅏ-ㅣ]+$/;
+  if (onlyJamo.test(normalized) && normalized.length >= 4) {
+    return "의미 없는 자음·모음 나열은 올릴 수 없습니다.";
+  }
+  // 영문/숫자 랜덤 문자열 차단: asdfasdf, qwerqwer, aaa123 같은 느낌
+  const onlyAlphaNumber = /^[a-z0-9]+$/;
+  const hasKorean = /[가-힣]/.test(text);
+  if (!hasKorean && onlyAlphaNumber.test(normalized) && normalized.length >= 8) {
+    return "의미 없는 문자 나열은 올릴 수 없습니다.";
+  }
+
+  // 한글 완성형 없이 특수문자/자모 중심이면 차단
+  const meaningfulKorean = /[가-힣]/.test(text);
+  const meaningfulEnglish = /[a-zA-Z]{2,}/.test(text);
+  if (!meaningfulKorean && !meaningfulEnglish) {
+    return "의미 있는 문장을 입력해 주세요.";
+  }
+  return "";
 }
+
 
 function formatTime(iso) {
   const date = new Date(iso);
@@ -145,10 +185,11 @@ async function submitPost(event) {
     return;
   }
 
-  if (isDisallowed(body)) {
-    setMessage("연락처·이메일·링크는 올릴 수 없습니다.", "error");
-    return;
-  }
+ const disallowedMessage = isDisallowed(body);
+ if (disallowedMessage) {
+ setMessage(disallowedMessage, "error");
+  return;
+}
 
   button.disabled = true;
   setMessage("남기는 중입니다.");
