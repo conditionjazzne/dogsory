@@ -1,7 +1,7 @@
 // 1) Supabase Dashboard > Project Settings > API에서 복사한 값을 넣으세요.
 // 2) service_role / secret 키는 절대 여기에 넣지 마세요.
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_PUBLISHABLE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+const SUPABASE_URL = "https://lcfoivjdnpyukoinqunw.supabase.co/rest/v1/";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_VJF_Aj0oWPEDPvejWeVOcw_qBsh95EA";
 
 const MAX_LENGTH = 100;
 const PAGE_SIZE = 40;
