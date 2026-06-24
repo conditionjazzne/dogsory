@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="익명으로 짧은 한마디를 남기는 독소리" />
+  <title>독소리</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="hero" aria-labelledby="site-title">
+      <h1 id="site-title">독소리</h1>
+      <p class="intro">화나는 일도, 헛소리도. 100자 안에서 두고 가세요.</p>
+
+      <form id="post-form" class="compose" novalidate>
+        <label class="sr-only" for="post-input">짧은 글 작성</label>
+        <div class="input-wrap">
+          <input
+            id="post-input"
+            name="post"
+            type="text"
+            maxlength="100"
+            autocomplete="off"
+            placeholder="지금 하고 싶은 말을 적어보세요"
+            aria-describedby="counter form-message"
+          />
+          <button id="submit-button" type="submit">남기기</button>
+        </div>
+        <div class="compose-meta">
+          <span id="counter" aria-live="polite">0 / 100</span>
+          <span id="form-message" role="status" aria-live="polite"></span>
+        </div>
+      </form>
+
+      <p class="rule">
+        특정인 식별, 개인정보, 협박·성적 비방은 남길 수 없습니다.
+      </p>
+    </section>
+
+    <section class="feed-section" aria-label="독소리 게시글">
+      <div class="feed-heading">
+        <h2>방금 남겨진 소리</h2>
+        <span id="feed-count"></span>
+      </div>
+      <div id="feed" class="feed" aria-live="polite"></div>
+      <p id="feed-status" class="feed-status" role="status">글을 불러오는 중입니다.</p>
+      <div id="scroll-sentinel" aria-hidden="true"></div>
+    </section>
+  </main>
+
+  <footer>
+    <span>독소리</span>
+    <span>·</span>
+    <span>익명이어도 타인을 해치지 않는 선에서</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
