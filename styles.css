@@ -36,10 +36,10 @@ body {
 
 .brand-image {
   display: block;
-  width: clamp(120px, 22vw, 180px);
+  width: clamp(45px, 7vw, 70px);
   height: auto;
-  margin: 0 auto 14px;
-  border-radius: 18px;
+  margin: 0 auto 10px;
+  border-radius: 10px;
   object-fit: cover;
  }
 
