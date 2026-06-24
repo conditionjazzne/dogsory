@@ -16,7 +16,7 @@ const feedStatus = document.querySelector("#feed-status");
 const feedCount = document.querySelector("#feed-count");
 const sentinel = document.querySelector("#scroll-sentinel");
 
-let supabase;
+let supabaseClient;
 let offset = 0;
 let totalLoaded = 0;
 let hasMore = true;
@@ -78,11 +78,11 @@ function postElement(post) {
 }
 
 async function ensureAnonymousSession() {
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
   if (sessionError) throw sessionError;
   if (session) return;
 
-  const { error } = await supabase.auth.signInAnonymously();
+  const { error } = await supabaseClient.auth.signInAnonymously();
   if (error) throw error;
 }
 
@@ -99,7 +99,7 @@ async function loadPosts({ reset = false } = {}) {
 
   feedStatus.textContent = totalLoaded ? "더 불러오는 중입니다." : "글을 불러오는 중입니다.";
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("posts")
     .select("id, body, created_at")
     .eq("is_hidden", false)
@@ -154,11 +154,11 @@ async function submitPost(event) {
   setMessage("남기는 중입니다.");
 
   try {
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     if (userError) throw userError;
     if (!user) throw new Error("익명 세션을 만들 수 없습니다.");
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from("posts")
       .insert({ body, author_id: user.id })
       .select("id, body, created_at")
@@ -197,7 +197,7 @@ async function start() {
     return;
   }
 
-  supabase = window.supabase.createClient(
+  supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY,
     { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } }
